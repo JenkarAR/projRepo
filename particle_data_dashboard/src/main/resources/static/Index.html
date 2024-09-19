@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Event Dashboard</title>
+    <style>
+        body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #ece9e6 0%, #ffffff 100%);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    box-shadow: 0 10px 20px rgba(255, 105, 180, 0.3), 0 4px 6px rgba(255, 105, 180, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    transform: translateY(50px);
+    animation: floatUp 1.2s ease-out forwards;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+       h1 {
+    color: #3F51B5;
+    text-align: center;
+    padding: 10px 0;
+    margin: 0;
+    font-size: 2rem;
+    border-bottom: 1px solid #ddd;
+    background-color: #f5f5f5;
+}
+.particle-info {
+    text-align: center;
+    background: #fafafa;
+    position: relative;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 128, 128, 0.3), 0 4px 6px rgba(0, 128, 128, 0.3);
+}
+        
+/* Particle Info Text */
+.particle-info p {
+    font-size: 1.2rem;
+    margin: 10px 0;
+    position: relative;
+}
+
+.particle-info span {
+    font-weight: bold;
+    color: #333;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+/* Highlight effect */
+.highlight {
+    color: #FF5722;
+    font-weight: bold;
+    transition: color 0.5s ease;
+}
+
+.highlight:hover {
+    color: #FF3D00;
+}
+
+/* Pulse Animation */
+.pulse-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pulse {
+    width: 24px;
+    height: 24px;
+    background-color: #3F51B5;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
+    animation: pulse 1.5s infinite;
+}
+
+/* Keyframes for Pulse Effect */
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 0, 0, 0.2); }
+    50% { transform: scale(1.2); box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(0, 0, 0, 0.2); }
+}
+
+/* Float Up Animation */
+@keyframes floatUp {
+    from { opacity: 0; transform: translateY(100px); }
+    to { opacity: 1; transform: translateY(0); }
+    }
+#chartContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+#chart {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    .container {
+        padding: 15px;
+        gap: 15px;
+    }
+    .particle-info p {
+        font-size: 1rem;
+    }
+    #chart {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.2rem;
+    }
+    .particle-info p {
+        font-size: 0.9rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Particle Event Dashboard</h1>
+        <div class="particle-info">
+        <div class="pulse-container">
+                <div class="pulse"></div>
+                <p>Particle: <span id="particleName" class="highlight"></span></p>
+            </div>
+            <p>Detector: <span id="detector"></span></p>
+            <p>Energy Level: <span id="energyLevel"></span></p>
+        </div>
+        <canvas id="chartContainer"></canvas>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart; // Define the chart globally
+
+        function updateParticleInfo(particleName, detector, energyLevel) {
+            document.getElementById('particleName').textContent = particleName;
+            document.getElementById('detector').textContent = detector;
+            document.getElementById('energyLevel').textContent = energyLevel;
+            
+            document.querySelector('.container').style.boxShadow = `0 10px 20px rgba(${randomColor()}, 0.3), 0 4px 6px rgba(${randomColor()}, 0.3)`;
+        }
+        
+        function randomColor() {
+            return `${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}`;
+        }
+
+        function drawChart(energyLevel) {
+            const ctx = document.getElementById('chartContainer').getContext('2d');
+            
+            if (chart) {
+                chart.destroy(); // Destroy the old chart before creating a new one
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Energy Level'],
+                    datasets: [{
+                        label: 'Energy Level of Particle',
+                        data: [energyLevel],
+                        backgroundColor: 'rgba(255, 87, 34, 0.2)',
+                        borderColor: 'rgba(255, 87, 34, 1)',
+                        borderWidth: 1,
+                        hoverBackgroundColor: 'rgba(255, 87, 34, 0.5)'
+                    }]
+                },
+                options:{
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+
+        async function fetchParticleData() {
+                   // Sending a GET request instead of a POST request
+                   const response = await fetch('http://localhost:8080/api/particles/data');
+                   const data = await response.json();
+
+                   // Update the front-end with the received data
+                   updateParticleInfo(data.particleName, data.detector, data.energyLevel);
+                   drawChart(data.energyLevel);
+               }
+
+               function startPolling() {
+                   fetchParticleData(); // Fetch initially
+                   setInterval(fetchParticleData, 5000); // Poll every 5 seconds
+               }
+
+
+        window.onload = startPolling; // Start polling when the page loads
+    </script>
+</body>
+</html>
